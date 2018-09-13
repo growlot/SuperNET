@@ -12,8 +12,8 @@ script:
 - npm install -g node-static
 - mkdir qwe
 - echo qwe > qwe/index.html
-- static --host-address 127.0.0.1 --port 80 qwe &
-- static --host-address 127.0.0.2 --port 80 qwe &
+- static --host-address 127.0.0.1 qwe &
+- static --host-address 127.0.0.2 qwe &
 - sleep 1
-- curl -v http://127.0.0.1/
-- curl -v http://127.0.0.2/
+- curl -v http://127.0.0.1:8080/
+- curl -v http://127.0.0.2:8080/
