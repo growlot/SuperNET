@@ -1,9 +1,5 @@
 #!/bin/bash
 
-sudo ifconfig lo0
-sudo ifconfig lo0 alias 127.0.0.2 up
-sudo ifconfig lo0
-
 sleep 2
 target/debug/mm2 '{"myipaddr": "127.0.0.2", "gui": "nogui", "client": 1, "passphrase": "SPATsRps3dhEtXwtnpRCKF", "coins": [{"coin": "BEER","asset": "BEER", "rpcport": 8923}, {"coin": "PIZZA","asset": "PIZZA", "rpcport": 11116}]}' &
 
