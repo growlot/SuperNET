@@ -347,7 +347,7 @@ pub mod for_tests {
                 let mut attempts = 0;
                 let mut rng = thread_rng();
                 loop {
-                    let ip4 = if cfg! (target_os = "macos") {
+                    let ip4 = if false {
                         // For some reason we can't use the 127.0.0.2-255 range of IPs on Travis/MacOS,
                         // cf. https://travis-ci.org/artemii235/SuperNET/jobs/428167579
                         // I plan to later look into this, but for now we're always using 127.0.0.1 on MacOS.
