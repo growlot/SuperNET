@@ -101,3 +101,21 @@ Porting on this level we
 Focusing on the function call chains that are a common part of a failure/crash or touch on the new functionality
 will allow us to leverage the [Pareto principle](https://en.wikipedia.org/wiki/Pareto_principle),
 advancing on 80% of desired Value (stability, functionality) with 20% of initial effort.
+
+## Build requirements
+
+The reference example of building MarketMaker is `../Dockerfile`.
+
+Here in this section we should explicitly list the requirements and provide some help with installing them outside of the Linux Docker environment. It is a work in progress, there are several requirements that aren't listed yet.
+
+### libsodium
+
+We need libsodium in order to build the `tox`, please refer to the [installation manual](https://download.libsodium.org/doc/installation).
+
+Example installing libsodium on Windows:
+
+    mkdir c:\spool\libsodium
+    cd c:\spool\libsodium
+    wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.16-msvc.zip
+    unzip libsodium-1.0.16-msvc.zip
+    set SODIUM_LIB_DIR=c:\spool\libsodium

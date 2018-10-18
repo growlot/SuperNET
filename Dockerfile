@@ -16,11 +16,24 @@ RUN \
     apt-get install -y pkg-config libssl-dev &&\
     apt-get clean
 
-#Cmake 3.12.0 supports multi-platform -j option, it allows to use all cores for concurrent build to speed up it
+# Cmake 3.12.0 supports multi-platform -j option, it allows to use all cores for concurrent build to speed up it
 RUN wget https://cmake.org/files/v3.12/cmake-3.12.0-Linux-x86_64.sh && \
     chmod +x cmake-3.12.0-Linux-x86_64.sh && \
     ./cmake-3.12.0-Linux-x86_64.sh --skip-license --exclude-subdir --prefix=/usr && \
     rm -rf cmake-3.12.0-Linux-x86_64.sh
+
+# We need libsodium in order to build the `tox`.
+# cf. https://download.libsodium.org/doc/installation
+# On Ubuntu 17.10 artful the version is 1.0.13 which is a tad older than we want it to be.
+RUN cd /tmp &&\
+    wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.16.tar.gz &&\
+    tar -xzf libsodium-1.0.16.tar.gz &&\
+    cd libsodium-1.0.16 &&\
+    ./configure &&\
+    make &&\
+    make install &&\
+    cd .. &&\
+    rm -rf libsodium-*
 
 RUN \
     wget -O- https://sh.rustup.rs > /tmp/rustup-init.sh &&\

@@ -93,3 +93,15 @@ if not exist marketmaker_depends\curl\build\lib\Release\libcurl.dll (
 copy marketmaker_depends\curl\build\lib\Release\libcurl_imp.lib x64\libcurl.lib
 copy marketmaker_depends\curl\build\lib\Release\libcurl_imp.exp x64\libcurl.exp
 copy marketmaker_depends\curl\build\lib\Release\libcurl.dll x64\libcurl.dll
+
+rem libsodium is needed for the `tox`
+rem and we can't install it from build.rs because `tox` is a Rust dependency.
+if not exist marketmaker_depends\libsodium\x64\Release\v141\static\libsodium.lib (
+    cd marketmaker_depends 
+    mkdir libsodium
+    cd libsodium
+    wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.16-msvc.zip
+    unzip libsodium-1.0.16-msvc.zip
+    cd ../..
+)
+set SODIUM_LIB_DIR=marketmaker_depends\libsodium
