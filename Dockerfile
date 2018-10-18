@@ -76,6 +76,7 @@ RUN cd /mm2 &&\
     cargo build -vv &&\
     mv target/debug/mm2 /usr/local/bin/marketmaker-mainnet &&\
     cargo test &&\
+    cargo test --package etomicrs &&\
     cargo clean
 
 CMD marketmaker-testnet
