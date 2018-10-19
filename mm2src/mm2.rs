@@ -50,6 +50,7 @@ extern crate serde;
 extern crate serde_json;
 #[macro_use]
 extern crate serde_derive;
+extern crate tox;
 #[macro_use]
 extern crate unwrap;
 extern crate winapi;
@@ -537,6 +538,18 @@ mod test {
                 }
             }
         }
+    }
+
+    /// Test the basic tox networking.
+    #[test]
+    fn test_tox_surface() {
+        // So far I don't see a lot of onion / DHT examples in tox-rs.
+        // There is a DHT server at https://github.com/tox-rs/tox-node/blob/master/src/main.rs,
+        // but it seems to lack any of the onion discovery or DHT manipulation.
+        // And yet discovery is the first thing we need to test,
+        // joining the network and finding the buying and selling peers is what we're here for.
+        // I'm giving up on tox-rs for now,
+        // hoping that they'll add the discovery options later.
     }
 }
 

@@ -114,8 +114,11 @@ We need libsodium in order to build the `tox`, please refer to the [installation
 
 Example installing libsodium on Windows:
 
-    mkdir c:\spool\libsodium
-    cd c:\spool\libsodium
+    pacman -S unzip
+    mkdir c:/spool/libsodium
+    cd c:/spool/libsodium
     wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.16-msvc.zip
     unzip libsodium-1.0.16-msvc.zip
-    set SODIUM_LIB_DIR=c:\spool\libsodium
+    set SODIUM_LIB_DIR=c:/spool/libsodium
+
+XXX: Might need to copy `x64/Release/v141/static/libsodium.lib` into `sodium.lib`.

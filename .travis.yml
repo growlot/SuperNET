@@ -12,10 +12,10 @@ matrix:
     osx_image: xcode9.2
 before_install:
 - |
+  echo Installing libsodium...
   if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
     brew install libsodium
   else
-    echo Installing libsodium... &&\
     wget https://download.libsodium.org/libsodium/releases/libsodium-1.0.16.tar.gz &&\
     tar -xzf libsodium-1.0.16.tar.gz &&\
     cd libsodium-1.0.16 &&\
@@ -23,8 +23,7 @@ before_install:
     make &&\
     sudo make install &&\
     cd .. &&\
-    rm -rf libsodium-* &&\
-    echo libsodium installed.
+    rm -rf libsodium-*
   fi
 - wget -O- https://sh.rustup.rs > /tmp/rustup-init.sh
 - sh /tmp/rustup-init.sh -y --default-toolchain stable
