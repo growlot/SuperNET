@@ -475,3 +475,13 @@ fn test_trade() {
     trade_base_rel("BEER", "ETH");
     trade_base_rel("ETH", "BEER");
 }
+
+#[test]
+fn test_zerotier() {
+    use common::zt::*;
+    unsafe {
+        let rc = zts_start (b"DB\0".as_ptr() as *const c_char, true);
+        assert_eq! (rc, 0, "!zts_start");
+        zts_stop();
+    }
+}

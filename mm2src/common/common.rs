@@ -80,6 +80,9 @@ pub mod nn {include! ("c_headers/nn.rs");}
 #[allow(dead_code,non_upper_case_globals,non_camel_case_types,non_snake_case)]
 pub mod etomiclib {include! ("c_headers/etomiclib.rs");}
 
+#[allow(dead_code,non_upper_case_globals,non_camel_case_types,non_snake_case)]
+pub mod zt {include! ("c_headers/zt.rs");}
+
 pub const MM_VERSION: &'static str = env! ("MM_VERSION");
 
 pub const SATOSHIS: u64 = 100000000;

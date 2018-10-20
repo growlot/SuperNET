@@ -10,12 +10,15 @@
 extern crate bindgen;
 extern crate cc;
 extern crate duct;
+#[macro_use]
+extern crate fomat_macros;
 extern crate gstuff;
 extern crate num_cpus;
 #[macro_use]
 extern crate unwrap;
 extern crate winapi;
 
+use bindgen::Builder;
 use duct::cmd;
 use gstuff::last_modified_sec;
 use std::env;
@@ -33,12 +36,14 @@ fn bindgen<
     FI: Iterator<Item = &'a &'a str>,
     TI: Iterator<Item = &'a &'a str>,
     DI: Iterator<Item = &'a &'a str>,
+    F: Fn(Builder) -> Builder,
 >(
     from: Vec<String>,
     to: TP,
     functions: FI,
     types: TI,
     defines: DI,
+    conf: F,
 ) {
     // We'd like to regenerate the bindings whenever the build.rs changes, in case we changed bindgen configuration here.
     let lm_build_rs = unwrap!(last_modified_sec(&"build.rs"), "Can't stat build.rs");
@@ -54,6 +59,7 @@ fn bindgen<
     }
     let lm_to = last_modified_sec(&to).unwrap_or(0.);
     if lm_from >= lm_to - SLIDE || lm_build_rs >= lm_to - SLIDE {
+        eprintln!("bindgen] Generating {:?} ...", to);
         let bindings = {
             // https://docs.rs/bindgen/0.37.*/bindgen/struct.Builder.html
             let mut builder = bindgen::builder();
@@ -83,6 +89,7 @@ fn bindgen<
                 builder = builder.whitelist_function(name);
                 builder = builder.whitelist_var(name)
             }
+            builder = conf(builder);
             match builder.generate() {
                 Ok(bindings) => bindings,
                 Err(()) => panic!("Error generating the bindings for {:?}", to),
@@ -124,6 +131,7 @@ fn generate_bindings() {
         ]
             .iter(),
         empty(),
+        |b| b,
     );
 
     // NB: curve25519.h and cJSON.h are needed to parse LP_include.h.
@@ -259,6 +267,7 @@ fn generate_bindings() {
             "LP_swapscount",
         ]
             .iter(),
+        |b| b,
     );
 
     bindgen(
@@ -274,6 +283,7 @@ fn generate_bindings() {
             .iter(),
         empty(), // types
         empty(), // defines
+        |b| b,
     );
     bindgen(
         vec!["../../crypto777/nanosrc/nn.h".into()],
@@ -288,6 +298,7 @@ fn generate_bindings() {
             .iter(),
         empty(),
         ["AF_SP", "NN_PAIR"].iter(),
+        |b| b,
     );
 }
 
@@ -539,6 +550,70 @@ fn build_c_code(mm_version: &str) {
     }
 }
 
+/// Link with the ZeroTier library and generate the bindings for it.
+fn zerotier() {
+    let out_dir = unwrap!(env::var("OUT_DIR"), "!OUT_DIR");
+
+    let tgz_path = Path::new(&out_dir).join("1.2.0.tar.gz");
+    if !tgz_path.exists() {
+        unwrap!(
+            cmd!(
+                "wget",
+                "-t9",
+                "https://github.com/zerotier/libzt/archive/1.2.0.tar.gz"
+            )
+            .dir(&out_dir)
+            .stdout_to_stderr()
+            .run()
+        );
+    }
+    let libzt_path = Path::new(&out_dir).join("libzt-1.2.0");
+    if !libzt_path.exists() {
+        unwrap!(
+            cmd!("tar", "-xzf", "1.2.0.tar.gz")
+                .dir(&out_dir)
+                .stdout_to_stderr()
+                .run()
+        );
+    }
+
+    if cfg!(windows) {
+        // NB: As of 2018-10-20 the DLL file is missing for x64.
+        let lib_path = Path::new(&out_dir).join("libzt-1.2.0r1-win10-x64-release.lib");
+        if !lib_path.exists() {
+            unwrap! (cmd! ("wget", "-t9", "https://download.zerotier.com/RELEASES/1.2.12/dist/libzt/win/libzt-1.2.0r1-win10-x64-release.lib")
+            .dir (&out_dir).stdout_to_stderr().run());
+        }
+        println!("cargo:rustc-link-lib=static=libzt-1.2.0r1-win10-x64-release");
+        println!("cargo:rustc-link-lib=shlwapi"); // For `__imp_PathIsDirectoryA`.
+        println!("cargo:rustc-link-lib=iphlpapi"); // For `GetAdaptersAddresses`.
+    } else {
+        panic!("Error, libzt download not supported on this platform [yet].")
+    }
+
+    bindgen(
+        vec![fomat! ((out_dir) "/libzt-1.2.0/include/libzt.h")],
+        "c_headers/zt.rs",
+        [
+            // functions
+            "zts_start",
+            "zts_stop",
+            "zts_get_node_id",
+        ]
+            .iter(),
+        // types
+        ["struct sockaddr"].iter(),
+        [
+            // defines
+            "F_SETFL",
+            "O_NONBLOCK",
+        ]
+            .iter(),
+        // cf. https://github.com/rust-lang-nursery/rust-bindgen/blob/master/book/src/cpp.md
+        |b| b.clang_args(["-x", "c++"].iter()),
+    )
+}
+
 fn main() {
     // NB: `rerun-if-changed` will ALWAYS invoke the build.rs if the target does not exists.
     // cf. https://github.com/rust-lang/cargo/issues/4514#issuecomment-330976605
@@ -574,4 +649,5 @@ fn main() {
     let mm_version = mm_version();
     build_c_code(&mm_version);
     generate_bindings();
+    zerotier();
 }
