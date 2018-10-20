@@ -480,8 +480,17 @@ fn test_trade() {
 fn test_zerotier() {
     use common::zt::*;
     unsafe {
-        let rc = zts_start (b"DB\0".as_ptr() as *const c_char, true);
-        assert_eq! (rc, 0, "!zts_start");
+        assert_eq! (0, zts_start (b"DB\0".as_ptr() as *const c_char, true));
+        assert_eq! (1, zts_core_running());
+        let earth = 0x8056c2e21c000001;
+        assert_eq! (0, zts_join (earth));
+        assert_eq! (1, zts_stack_running());
+        assert_eq! (1, zts_ready());
+
+        println! ("zts_get_node_id: {}", zts_get_node_id());
+        println! ("zts_get_peer_count: {}", zts_get_peer_count());
+
+        //hangs// assert_eq! (0, zts_leave (earth));
         zts_stop();
     }
 }

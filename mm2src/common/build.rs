@@ -9,6 +9,7 @@
 
 extern crate bindgen;
 extern crate cc;
+#[macro_use]
 extern crate duct;
 #[macro_use]
 extern crate fomat_macros;
@@ -597,18 +598,18 @@ fn zerotier() {
         [
             // functions
             "zts_start",
+            "zts_core_running",
+            "zts_join",
+            "zts_stack_running",
+            "zts_ready",
+            "zts_leave",
             "zts_stop",
             "zts_get_node_id",
+            "zts_get_peer_count",
         ]
             .iter(),
-        // types
-        ["struct sockaddr"].iter(),
-        [
-            // defines
-            "F_SETFL",
-            "O_NONBLOCK",
-        ]
-            .iter(),
+        empty(), // types
+        empty(), // defines
         // cf. https://github.com/rust-lang-nursery/rust-bindgen/blob/master/book/src/cpp.md
         |b| b.clang_args(["-x", "c++"].iter()),
     )
