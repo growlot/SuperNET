@@ -560,6 +560,7 @@ fn zerotier() {
         unwrap!(
             cmd!(
                 "curl",
+                "--location",
                 "https://github.com/zerotier/libzt/archive/1.2.0.tar.gz",
                 "--output",
                 "1.2.0.tar.gz"
@@ -583,10 +584,18 @@ fn zerotier() {
         // NB: As of 2018-10-20 the DLL file is missing for x64.
         let lib_path = Path::new(&out_dir).join("libzt-1.2.0r1-win10-x64-release.lib");
         if !lib_path.exists() {
-            unwrap! (cmd! (
-                "curl", "https://download.zerotier.com/RELEASES/1.2.12/dist/libzt/win/libzt-1.2.0r1-win10-x64-release.lib",
-                "--output", "libzt-1.2.0r1-win10-x64-release.lib")
-                .dir (&out_dir).stdout_to_stderr().run());
+            unwrap! (
+                cmd! (
+                    "curl",
+                    "--location",
+                    "https://download.zerotier.com/RELEASES/1.2.12/dist/libzt/win/libzt-1.2.0r1-win10-x64-release.lib",
+                    "--output",
+                    "libzt-1.2.0r1-win10-x64-release.lib"
+                )
+                .dir (&out_dir)
+                .stdout_to_stderr()
+                .run()
+            );
         }
         println!("cargo:rustc-link-lib=static=libzt-1.2.0r1-win10-x64-release");
         println!("cargo:rustc-link-lib=shlwapi"); // For `__imp_PathIsDirectoryA`.
